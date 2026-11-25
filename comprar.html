@@ -42,6 +42,12 @@ a{color:var(--accent)}
 </header>
 
 <div class="wrap">
+  <details style="margin-bottom:18px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#0f1a2d">
+    <summary class="small muted" style="cursor:pointer">⚙ Configuración del servidor (solo si usas la app en celular)</summary>
+    <p class="small muted">En el celular, <b>127.0.0.1</b> es el propio teléfono. Ingresa la URL pública de tu servidor (ej. túnel Cloudflare). Se guarda en este dispositivo.</p>
+    <div class="row"><input id="apiUrl" placeholder="https://tu-dominio.trycloudflare.com" ><button class="btn ghost" onclick="saveApi()">Guardar</button></div>
+  </details>
+
   <h2>Elige tu plan</h2>
   <p class="lead">Todos los planes incluyen 1 número WhatsApp y panel propio. Cada número adicional tiene <b>10% de descuento fijo</b>.</p>
 
@@ -92,12 +98,13 @@ a{color:var(--accent)}
 
 <script>
 // URL del backend. Si se despliega la web en otro dominio, cambiar por la URL pública del bridge.
-const API = window.PISTON_API_URL || 'http://127.0.0.1:2013';
+const API = localStorage.getItem('piston_api_url') || window.PISTON_API_URL || 'http://127.0.0.1:2013';
 const $ = id => document.getElementById(id);
 let selectedPlan = null;
 let catalog = [];
 
 async function init(){
+  $("apiUrl").value = API;
   try{
     const r = await fetch(API+'/public/plans');
     const d = await r.json();
@@ -180,6 +187,12 @@ $('orderForm').addEventListener('submit', async e=>{
     btn.disabled=false; btn.textContent='Enviar pedido y comprobante';
   }
 });
+function saveApi(){
+  const v=$('apiUrl').value.trim().replace(/\/$/,'');
+  if(!v){ alert('Ingresa una URL.'); return; }
+  localStorage.setItem('piston_api_url',v);
+  alert('Servidor guardado: '+v+'\nRecarga la página para aplicar.');
+}
 init();
 </script>
 </body>
